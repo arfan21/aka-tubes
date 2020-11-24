@@ -5,77 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script type="text/javascript" src="https://canvasjs.com/assets/script/jquery.canvasjs.min.js"></script>
     <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.js" integrity="sha256-DrT5NfxfbHvMHux31Lkhxg42LY6of8TaYyK50jnxRnM=" crossorigin="anonymous"></script>
+	<script src="https://code.jquery.com/jquery-3.5.1.slim.js" integrity="sha256-DrT5NfxfbHvMHux31Lkhxg42LY6of8TaYyK50jnxRnM=" crossorigin="anonymous"></script>
+	<link rel="stylesheet" href="style.css"/>
     <title>TUBES AKA</title>
 </head>
 <body>
-    <p>Generate number</p>
-    <label>Input size array</label>
-    <input id="input-size" type="number"> 
-    <button onclick="generateArray()">Submit</button>
-    <button onclick="sortingArray()">Sorting array</button>
-    <div id="chart"> </div>
-    <div id="visual-chart"></div>
+	<div>
+		<p>Generate number</p>
+		<label>Input size array</label>
+		<input id="input-size" type="number"> 
+		<button onclick="generateArray()">Submit</button>
+	</div>
+	<div>
+		<button onclick="sort()">Sorting array</button>
+	</div>
+
+	<div id="selection-sort-chart" style="width: 45%; height: 300px;display: inline-block;"> </div>
+	<div id="gnome-sort-chart" style="width: 45%; height: 300px;display: inline-block;"> </div>
+
 </body>
 <script src="./main.js"></script>
 </html>
-<!-- <!DOCTYPE HTML>
-<html>
-<head>
-<script>
-window.onload = function () {
-
-
-//Better to construct options first and then pass it as a parameter
-var options = {
-	animationEnabled: true,
-	title: {
-		text: "Mobile Phones Used For",                
-		fontColor: "Peru"
-	},	
-	axisY: {
-		tickThickness: 0,
-		lineThickness: 0,
-		valueFormatString: " ",
-		includeZero: true,
-		gridThickness: 0                    
-	},
-	axisX: {
-		tickThickness: 0,
-		lineThickness: 0,
-		labelFontSize: 18,
-		labelFontColor: "Peru"				
-	},
-	data: [{
-		indexLabelFontSize: 26,
-		toolTipContent: "<span style=\"color:#62C9C3\">{indexLabel}:</span> <span style=\"color:#CD853F\"><strong>{y}</strong></span>",
-		indexLabelPlacement: "inside",
-		indexLabelFontColor: "white",
-		indexLabelFontWeight: 600,
-		indexLabelFontFamily: "Verdana",
-		color: "#62C9C3",
-		type: "bar",
-		dataPoints: [
-			{ y: 21},
-			{ y: 25},
-			{ y: 33},
-			{ y: 36},
-			{ y: 42},
-			{ y: 49},
-			{ y: 50},
-			{ y: 55},
-			{ y: 61},
-		]
-	}]
-};
-
-$("#chartContainer").CanvasJSChart(options);
-}
-</script>
-</head>
-<body>
-<div id="chartContainer" style="height: 300px; width: 100%;"></div>
-<script type="text/javascript" src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
-<script type="text/javascript" src="https://canvasjs.com/assets/script/jquery.canvasjs.min.js"></script>
-</body>
-</html> -->
