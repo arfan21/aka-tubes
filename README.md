@@ -1,3 +1,3 @@
 # aka-tubes
 
-### ✨ [Demo](https://getprint.arfantest-server.site/)
+### ✨ [Demo](https://tubes-aka.arfantest-server.site/)
