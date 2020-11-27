@@ -23,6 +23,7 @@ func Controller(e echo.Context) error {
 
 			if err != nil {
 				log.Println(err)
+				break
 			}
 
 			if strings.Contains(message, "size") {
