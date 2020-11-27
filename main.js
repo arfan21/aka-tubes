@@ -56,6 +56,13 @@ var chart2 = new CanvasJS.Chart("gnome-sort-chart", {
 chart1.render();
 chart2.render();
 
+async function updateChart(chart, arr) {
+    return new Promise((resolve) => {
+        chart.options.data[0].dataPoints = arr;
+        resolve(chart);
+    });
+}
+
 function generateArray() {
     myArray["size"] = $("#input-size").val();
     myArray.selection_array = [];
@@ -72,7 +79,6 @@ function generateArray() {
 
     chart1.render();
     chart2.render();
-    console.log(myArray.selection_array);
 }
 
 function sort() {
@@ -81,6 +87,7 @@ function sort() {
 }
 
 async function selectionSort() {
+    var t0 = performance.now();
     for (var i = 0; i < myArray.size; i++) {
         var min = i;
         for (var j = i + 1; j < myArray.size; j++) {
@@ -91,14 +98,24 @@ async function selectionSort() {
         var temp = myArray.selection_array[i].y;
         myArray.selection_array[i].y = myArray.selection_array[min].y;
         myArray.selection_array[min].y = temp;
-        chart1.options.data[0].dataPoints = myArray.selection_array;
-        chart1.render();
-        await timer(0.1);
+        // chart1.options.data[0].dataPoints = myArray.selection_array;
+        // chart1.render();
+        // await timer(0.1);
+        await updateChart(chart1, myArray.selection_array).then(
+            async (chart) => {
+                chart.render();
+                // await timer(0.1);
+            }
+        );
+        // await timer(0.1);
     }
-    console.log(myArray.arr);
+    var t1 = performance.now();
+    console.log(`selection sort : ${t1 - t0} ms`);
+    $("#selection-time").text(`${t1 - t0} ms`);
 }
 
 async function gnomeSort() {
+    var t0 = performance.now();
     function moveBack(i) {
         for (
             ;
@@ -116,6 +133,9 @@ async function gnomeSort() {
 
         chart2.options.data[0].dataPoints = myArray.gnome_array;
         chart2.render();
-        await timer(0.1);
+        // await timer(0.1);
     }
+    var t1 = performance.now();
+    console.log(`gnome sort : ${t1 - t0} ms`);
+    $("#gnome-time").text(performance.now());
 }
