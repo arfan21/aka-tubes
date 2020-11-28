@@ -33,7 +33,11 @@ func Controller(e echo.Context) error {
 				_ = json.Unmarshal([]byte(message), &msg)
 
 				sizeStr := msg["size"].(string)
-				size, _ := strconv.Atoi(sizeStr)
+				size, err := strconv.Atoi(sizeStr)
+				if err != nil {
+					json, _ := json.Marshal(helpers.SendArray{Tipe: "error", Data: "inputan hanya angka"})
+					err = websocket.Message.Send(ws, string(json))
+				}
 				array := rand.Perm(size)
 
 				for i := 0; i < len(array); i++ {

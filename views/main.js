@@ -65,6 +65,11 @@ function generateArray() {
     ws.onmessage = function (event) {
         console.log(`[message] Data received from server: ${event.data}`);
         var data = JSON.parse(event.data);
+
+        if (data.tipe === "error") {
+            alert(data.data);
+        }
+
         if (data.tipe === "unsorted") {
             myArray.selection_array = data.data;
             myArray.gnome_array = data.data;
