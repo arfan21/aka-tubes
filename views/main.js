@@ -2,54 +2,6 @@ const myArray = {
     selection_array: [],
     gnome_array: [],
 };
-// Using CanvasJS
-// var chart1 = new CanvasJS.Chart("selection-sort-chart", {
-//     animationEnabled: true,
-
-//     title: {
-//         text: "selection sort",
-//     },
-//     axisX: {
-//         interval: 1,
-//     },
-//     axisY2: {
-//         interlacedColor: "rgba(1,77,101,.2)",
-//         gridColor: "rgba(1,77,101,.1)",
-//     },
-//     data: [
-//         {
-//             type: "bar",
-//             name: "number",
-//             axisYType: "secondary",
-//             color: "#014D65",
-//             dataPoints: myArray.selection_array,
-//         },
-//     ],
-// });
-
-// var chart2 = new CanvasJS.Chart("gnome-sort-chart", {
-//     animationEnabled: true,
-
-//     title: {
-//         text: "gnome sort",
-//     },
-//     axisX: {
-//         interval: 1,
-//     },
-//     axisY2: {
-//         interlacedColor: "rgba(1,77,101,.2)",
-//         gridColor: "rgba(1,77,101,.1)",
-//     },
-//     data: [
-//         {
-//             type: "bar",
-//             name: "number",
-//             axisYType: "secondary",
-//             color: "#014D65",
-//             dataPoints: myArray.gnome_array,
-//         },
-//     ],
-// });
 
 var selectionChart = new Chart($("#selectionChart"), {
     type: "horizontalBar",
