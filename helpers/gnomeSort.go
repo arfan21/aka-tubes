@@ -3,35 +3,49 @@ package helpers
 import (
 	"encoding/json"
 	"fmt"
-	"log"
+	"sync"
 	"time"
 
 	"golang.org/x/net/websocket"
 )
 
-func GnomeSort(ws *websocket.Conn, arr1 []MyArray) {
-	start := time.Now()
+func GnomeSort(ws *websocket.Conn, arr1 []int) {
+	chanArr := make(chan []int, 10)
+	elapsed := make(chan time.Duration)
+	var wg sync.WaitGroup
+	wg.Add(len(arr1))
 
-	for i, j := 1, 2; i < len(arr1); {
-		if arr1[i-1].Y > arr1[i].Y {
-			arr1[i-1].Y, arr1[i].Y = arr1[i].Y, arr1[i-1].Y
-			i--
-			if i > 0 {
-				continue
+	go func(arr1 []int) {
+		defer wg.Done()
+		start := time.Now()
+		for i, j := 1, 2; i < len(arr1); {
+			if arr1[i-1] > arr1[i] {
+				arr1[i-1], arr1[i] = arr1[i], arr1[i-1]
+				i--
+				if i > 0 {
+					continue
+				}
 			}
+			i = j
+			j++
+			chanArr <- arr1
 		}
-		i = j
-		j++
+		close(chanArr)
+		elapsed <- time.Since(start)
+	}(arr1)
 
-		json, _ := json.Marshal(SendArray{Tipe: "gnome-sort", Data: arr1})
+	for arr := range chanArr {
+		json, _ := json.Marshal(SendResponse{Tipe: "gnome-sort", Data: arr})
 		_ = websocket.Message.Send(ws, string(json))
-
 	}
 
-	elapsed := time.Since(start)
-	json, _ := json.Marshal(SendArray{Tipe: "time-gnome-sort", Data: fmt.Sprintf("time execute : %v", elapsed)})
-	err := websocket.Message.Send(ws, string(json))
-	if err != nil {
-		log.Println(err)
-	}
+	go func() {
+		wg.Wait()
+		close(elapsed)
+	}()
+
+	json, _ := json.Marshal(SendResponse{Tipe: "time-gnome-sort", Data: fmt.Sprintf("time execute : %v", <-elapsed)})
+	_ = websocket.Message.Send(ws, string(json))
+
+	fmt.Println(string(json))
 }
