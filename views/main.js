@@ -113,7 +113,7 @@ function generateArray() {
         data: $("#input-size").val(),
     };
 
-    if (msg.size > 2000) {
+    if (msg.data > 2000) {
         alert("max 2000. maaf server kentang agar tidak crash wkwkwk");
         return;
     }
