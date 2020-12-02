@@ -1,0 +1,11 @@
+version: "3.8"
+services:
+    tubes:
+        build:
+            context: .
+            dockerfile: dockerfile
+        container_name: "tubes"
+        ports:
+            - 8000:8000
+        environment:
+            - RELEASE=true

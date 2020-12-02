@@ -16,8 +16,8 @@ func GnomeSort(arr1 []int, chanArr chan []int, elapsed chan time.Duration) {
 		}
 		i = j
 		j++
-		chanArr <- arr1
+		chanArr <- arr1 //mengirim array yang sudah berubah ke channel
 	}
-	close(chanArr)
+	close(chanArr) // menutup channel ketika sorting sudah selesai
 	elapsed <- time.Since(start)
 }

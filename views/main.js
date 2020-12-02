@@ -57,7 +57,44 @@ var gnomeChart = new Chart($("#gnomeChart"), {
     },
 });
 
-var ws = new WebSocket("ws://localhost:8000/stream");
+function getUrl() {
+    return new Promise((resolve, reject) => {
+        $.get("/link-ws", (res) => {
+            resolve(res.link);
+        });
+    });
+}
+
+var app = {
+    ws: undefined,
+    link: undefined,
+};
+
+app.init = async () => {
+    if (!window.WebSocket) {
+        alert("Your browser does not support WebSocket");
+        return;
+    }
+
+    app.link = await getUrl().then((res) => res);
+    console.log(`connected websocket ${app.link}`);
+    app.ws = new WebSocket(app.link);
+
+    app.ws.onclose = function (event) {
+        if (event.wasClean) {
+            console.log(
+                `[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`
+            );
+        } else {
+            // e.g. server process killed or network down
+            // event.code is usually 1006 in this case
+            alert("[close] Connection died, please refresh");
+            console.log("[close] Connection died");
+        }
+    };
+};
+
+window.onload = app.init();
 
 function generateArray() {
     var msg = {
@@ -65,16 +102,16 @@ function generateArray() {
         data: $("#input-size").val(),
     };
 
-    if (msg.data > 2000) {
-        alert("max 2000. maaf server kentang agar tidak crash wkwkwk");
+    if (msg.data > 1000) {
+        alert("max 1000, biar cepat selesai wakawkawk");
         return;
     }
 
-    ws.send(JSON.stringify(msg));
+    app.ws.send(JSON.stringify(msg));
     console.log(`send : ${JSON.stringify(msg)}`);
     $("#input-size").val("");
 
-    ws.onmessage = function (event) {
+    app.ws.onmessage = function (event) {
         // console.log(`[message] Data received from server: ${event.data}`);
         var data = JSON.parse(event.data);
 
@@ -112,10 +149,10 @@ function sortArray() {
         tipe: "shorting now",
     };
 
-    ws.send(JSON.stringify(msg));
+    app.ws.send(JSON.stringify(msg));
     var timeRenderSelection = [];
     var timeRenderGnome = [];
-    ws.onmessage = function (event) {
+    app.ws.onmessage = function (event) {
         var data = JSON.parse(event.data);
 
         if (data.tipe === "selection-sort") {
@@ -161,16 +198,3 @@ function sortArray() {
         }
     };
 }
-
-ws.onclose = function (event) {
-    if (event.wasClean) {
-        console.log(
-            `[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`
-        );
-    } else {
-        // e.g. server process killed or network down
-        // event.code is usually 1006 in this case
-        alert("[close] Connection died, please refresh");
-        console.log("[close] Connection died");
-    }
-};

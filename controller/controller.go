@@ -58,7 +58,10 @@ func Controller(e echo.Context) error {
 				arr2 := make([]int, len(myArray))
 				copy(arr2, myArray)
 
-				chanArrSelection := make(chan []int) //deklarasi channel
+				//deklarasi channel
+				//channel digunakkan untuk menerima perubahan array setiap iteration
+				//channel ketika menerima data dari fungsi sorting akan langsung dikirim ke client
+				chanArrSelection := make(chan []int)
 				chanArrGnome := make(chan []int)
 				elapsedSelection := make(chan time.Duration)
 				elapsedGnome := make(chan time.Duration)
@@ -66,6 +69,7 @@ func Controller(e echo.Context) error {
 				go helpers.SelectionSort(arr1, chanArrSelection, elapsedSelection)
 
 				for arrSelection := range chanArrSelection {
+					// mengirim data channel yang diterima dari fungsi selectionSort ke client
 					json, _ := json.Marshal(helpers.SendResponse{Tipe: "selection-sort", Data: arrSelection})
 					_ = websocket.Message.Send(ws, string(json)) //mengirim perubahan array ke client
 				}
@@ -76,6 +80,7 @@ func Controller(e echo.Context) error {
 				go helpers.GnomeSort(arr2, chanArrGnome, elapsedGnome)
 
 				for arrGnome := range chanArrGnome {
+					// mengirim data channel yang diterima dari fungsi gnomeSort ke client
 					json, _ := json.Marshal(helpers.SendResponse{Tipe: "gnome-sort", Data: arrGnome})
 					_ = websocket.Message.Send(ws, string(json)) //mengirim perubahan array ke client
 				}
