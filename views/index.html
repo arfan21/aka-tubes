@@ -17,15 +17,22 @@
         </div>
     </div>
     
-    <div class="container mx-auto">
-        <div class="relative flex justify-center items-center m-4">
-            <div>
-                <input style="width: 49%;"  class="mr-3.5 bg-white focus:outline-none border px-6 py-3 focus:border-blue-500 border-gray-600 text-gray-600" placeholder="size array (max 1000)" id="input-size" type="number">
-                <button id="generate-array" style="width: 49%;"  class=" mr-1 lg:mr-0 bg-blue-600 hover:bg-blue-500 transition-all duration-200 focus:outline-none shadow-inner text-white px-6 py-3 mt-4 " onclick="generateArray()">Generate Array</button>
-                <button id="start-sorting" class="w-1/2 lg:w-full bg-blue-600 hover:bg-blue-500 transition-all duration-200 focus:outline-none shadow-inner text-white px-6 py-3 mt-4" onclick="sortArray()">Start Sorting</button>
-                <input disabled placeholder="selection sort execution time" style="width: 49%;" class="mr-3.5 border-none bg-grey-300 focus:outline-none border px-6 py-3 focus:border-teal-500 border-gray-600 text-gray-600  mt-4" type="text" id="selection-time"></input>
-                <input disabled placeholder="gnome sort execution time" style="width: 49%;" class="bg-grey-300 border-none focus:outline-none border px-6 py-3 focus:border-teal-500 border-gray-600 text-gray-600 mt-4" type="text" id="gnome-time"></input>
+    <div class="container mx-auto w-full md:w-3/5">
+        <div class="relative flex flex-wrap justify-center items-center m-4">
+            <div class="w-full lg:w-1/2 p-2" >
+                <input class="w-full bg-white focus:outline-none border px-6 py-3 focus:border-blue-500 border-gray-600 text-gray-600" placeholder="size array (max 1000)" id="input-size" type="number">
+                <button id="generate-array" class="w-full bg-blue-600 hover:bg-blue-500 transition-all duration-200 focus:outline-none shadow-inner text-white px-6 py-3 mt-4 " onclick="generateArray()">Generate Array</button>
+                <button disabled id="start-sorting" class="w-full bg-blue-500 hover:bg-blue-500 transition-all duration-200 focus:outline-none shadow-inner text-white px-6 py-3 mt-4" onclick="sortArray()">Start Sorting</button>
             </div>
+            <div class="w-full lg:w-1/2  p-1.5" >
+                <input disabled placeholder="selection sort execution time" class="time hidden w-full border-none bg-blue-300 focus:outline-none border px-6 py-1.5 focus:border-teal-500 border-gray-600 text-gray-600  m-1" type="text" id="selection-time"></input>
+                <input disabled placeholder="selection sort render time" class="time hidden w-full bg-blue-300 border-none focus:outline-none border px-6 py-1.5 focus:border-teal-500 border-gray-600 text-gray-600 m-1" type="text" id="selection-time-render"></input>
+                <input disabled placeholder="gnome sort execution time" class="time hidden w-full border-none bg-red-300 focus:outline-none border px-6 py-1.5 focus:border-teal-500 border-gray-600 text-gray-600 m-1" type="text" id="gnome-time"></input>
+                <input disabled placeholder="gnome sort render time" class="time hidden w-full bg-red-300 border-none focus:outline-none border px-6 py-1.5 focus:border-teal-500 border-gray-600 text-gray-600 m-1" type="text" id="gnome-time-render"></input>
+            </div>
+        </div>
+        <div class="relative flex flex-wrap justify-center items-center m-4">
+            <p id="note" class="hidden">#note : time execute lebih cepat karena algoritma sorting dengan render dipisahkan</p>
         </div>
     </div>
 	
@@ -39,17 +46,6 @@
             </div>
             
         </div>
-        
-        <!-- <div class="flex flex-wrap justify-center items-center">
-            <div  style="height: 400px" class="w-full lg:w-1/2">
-                <div id="selection-sort-chart"></div>
-            </div>
-            
-            <div style="height: 400px"  class="w-full lg:w-1/2">
-                <div id="gnome-sort-chart" > </div>
-            </div>
-        </div> -->
-		
 	</div>
 </body>
 <script src="./main.js"></script>

@@ -1,96 +1,121 @@
 package controller
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"math/rand"
+	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/arfan21/tubes/helpers"
+	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
-	"golang.org/x/net/websocket"
 )
 
 func Controller(e echo.Context) error {
-	websocket.Handler(func(ws *websocket.Conn) {
-		defer ws.Close()
-		myArray := make([]int, 0)
-		for {
-			var message string
+	ws, err := websocket.Upgrade(e.Response(), e.Request(), e.Response().Header(), 1024, 1024)
+	if err != nil {
+		e.JSON(http.StatusBadRequest, "Could not open websocket connection")
+	}
 
-			err := websocket.Message.Receive(ws, &message) // menerima message dari client
+	defer ws.Close()
+	myArray := make([]int, 0)
+
+	for {
+		var message map[string]interface{}
+		err := ws.ReadJSON(&message)
+		if err != nil {
+			e.Logger().Error(err)
+			websocket.WriteJSON(ws, helpers.SendResponse{Tipe: "error", Data: err.Error()})
+			return err
+		}
+
+		msgString := message["tipe"].(string)
+		fmt.Println(msgString)
+
+		if strings.Contains(msgString, "generate array") {
+			myArray = make([]int, 0) // reset array
+
+			sizeStr := message["data"].(string)
+			size, err := strconv.Atoi(sizeStr) //convert size array dari string ke integer
 
 			if err != nil {
-				log.Println(err)
-				break
-			}
-
-			if strings.Contains(message, "generate array") {
-				myArray = make([]int, 0) // reset array
-
-				var msg map[string]interface{}
-				_ = json.Unmarshal([]byte(message), &msg) // decode message from client
-
-				sizeStr := msg["data"].(string)
-				size, err := strconv.Atoi(sizeStr) //convert size array dari string ke integer
-
+				err = websocket.WriteJSON(ws, helpers.SendResponse{Tipe: "error", Data: "inputan hanya angka"})
 				if err != nil {
-					json, _ := json.Marshal(helpers.SendResponse{Tipe: "error", Data: "inputan hanya angka"})
-					err = websocket.Message.Send(ws, string(json))
-				} else {
-					myArray = rand.Perm(size)
-
-					json, _ := json.Marshal(helpers.SendResponse{Tipe: "unsorted", Data: myArray})
-
-					err = websocket.Message.Send(ws, string(json))
-					if err != nil {
-						log.Println(err)
-					}
+					log.Println(err)
 				}
-			}
+			} else {
+				myArray = rand.Perm(size)
 
-			if strings.Contains(message, "shorting now") {
-				arr1 := make([]int, len(myArray))
-				copy(arr1, myArray) //membuat copy dari array myArray
-				arr2 := make([]int, len(myArray))
-				copy(arr2, myArray)
-
-				//deklarasi channel
-				//channel digunakkan untuk menerima perubahan array setiap iteration
-				//channel ketika menerima data dari fungsi sorting akan langsung dikirim ke client
-				chanArrSelection := make(chan []int)
-				chanArrGnome := make(chan []int)
-				elapsedSelection := make(chan time.Duration)
-				elapsedGnome := make(chan time.Duration)
-
-				go helpers.SelectionSort(arr1, chanArrSelection, elapsedSelection)
-
-				for arrSelection := range chanArrSelection {
-					// mengirim data channel yang diterima dari fungsi selectionSort ke client
-					json, _ := json.Marshal(helpers.SendResponse{Tipe: "selection-sort", Data: arrSelection})
-					_ = websocket.Message.Send(ws, string(json)) //mengirim perubahan array ke client
+				err = websocket.WriteJSON(ws, helpers.SendResponse{Tipe: "unsorted", Data: myArray})
+				if err != nil {
+					log.Println(err)
 				}
-
-				msg, _ := json.Marshal(helpers.SendResponse{Tipe: "time-selection-sort", Data: fmt.Sprintf("time execute : %v", <-elapsedSelection)})
-				_ = websocket.Message.Send(ws, string(msg))
-
-				go helpers.GnomeSort(arr2, chanArrGnome, elapsedGnome)
-
-				for arrGnome := range chanArrGnome {
-					// mengirim data channel yang diterima dari fungsi gnomeSort ke client
-					json, _ := json.Marshal(helpers.SendResponse{Tipe: "gnome-sort", Data: arrGnome})
-					_ = websocket.Message.Send(ws, string(json)) //mengirim perubahan array ke client
-				}
-
-				msg, _ = json.Marshal(helpers.SendResponse{Tipe: "time-gnome-sort", Data: fmt.Sprintf("time execute : %v", <-elapsedGnome)})
-				_ = websocket.Message.Send(ws, string(msg))
 			}
 		}
 
-	}).ServeHTTP(e.Response(), e.Request())
+		if strings.Contains(msgString, "shorting now") {
+			arrCopy := make([]int, len(myArray))
+			copy(arrCopy, myArray) //membuat copy dari array myArray
 
-	return nil
+			//deklarasi channel
+			//channel digunakkan untuk menerima perubahan array setiap iteration
+			//channel ketika menerima data dari fungsi sorting akan langsung dikirim ke client
+			chanArrSelection := make(chan []int)
+			elapsedSelection := make(chan time.Duration)
+
+			fmt.Println("Main : Start all function sorting")
+
+			var wg sync.WaitGroup
+
+			wg.Add(2)
+
+			go helpers.SelectionSort(arrCopy, chanArrSelection, elapsedSelection, &wg)
+
+			go func() {
+				defer wg.Done()
+				for arrSelection := range chanArrSelection {
+					// mengirim data channel yang diterima dari fungsi selectionSort ke client
+					_ = websocket.WriteJSON(ws, helpers.SendResponse{Tipe: "selection-sort", Data: arrSelection}) //mengirim perubahan array ke client
+				}
+
+				_ = websocket.WriteJSON(ws, helpers.SendResponse{Tipe: "time-selection-sort", Data: fmt.Sprintf("time execute : %v", <-elapsedSelection)})
+			}()
+			wg.Wait()
+		}
+
+		if strings.Contains(msgString, "selection done") {
+			arrCopy := make([]int, len(myArray))
+			copy(arrCopy, myArray)
+
+			//deklarasi channel
+			//channel digunakkan untuk menerima perubahan array setiap iteration
+			//channel ketika menerima data dari fungsi sorting akan langsung dikirim ke client
+			chanArrGnome := make(chan []int)
+			elapsedGnome := make(chan time.Duration)
+
+			var wg sync.WaitGroup
+
+			wg.Add(2)
+
+			go helpers.GnomeSort(arrCopy, chanArrGnome, elapsedGnome, &wg)
+			go func() {
+				defer wg.Done()
+				for arrGnome := range chanArrGnome {
+					// mengirim data channel yang diterima dari fungsi gnomeSort ke client
+					_ = websocket.WriteJSON(ws, helpers.SendResponse{Tipe: "gnome-sort", Data: arrGnome}) //mengirim perubahan array ke client
+				}
+
+				_ = websocket.WriteJSON(ws, helpers.SendResponse{Tipe: "time-gnome-sort", Data: fmt.Sprintf("time execute : %v", <-elapsedGnome)})
+
+			}()
+
+			wg.Wait()
+			fmt.Println("Main : all function sorting done")
+		}
+
+	}
 }

@@ -1,22 +1,30 @@
 package helpers
 
 import (
+	"fmt"
+	"sync"
 	"time"
 )
 
-func SelectionSort(arr1 []int, chanArr chan []int, elapsed chan time.Duration) {
+func SelectionSort(arr []int, chanArr chan []int, elapsed chan time.Duration, wg *sync.WaitGroup) {
+	fmt.Println("SelectionSort : Start selection sorting")
+
+	defer wg.Done()
+
 	start := time.Now()
-	for i := 0; i < len(arr1); i++ {
+	for i := 0; i < len(arr); i++ {
 		var minIdx = i
-		for j := i; j < len(arr1); j++ {
-			if arr1[j] < arr1[minIdx] {
+		for j := i; j < len(arr); j++ {
+			if arr[j] < arr[minIdx] {
 				minIdx = j
 			}
 		}
-		arr1[i], arr1[minIdx] = arr1[minIdx], arr1[i]
-		chanArr <- arr1 //mengirim array yang sudah berubah ke channel
+		arr[i], arr[minIdx] = arr[minIdx], arr[i]
 
+		chanArr <- arr //mengirim array yang sudah berubah ke channel
 	}
 	close(chanArr) // menutup channel ketika sorting sudah selesai
 	elapsed <- time.Since(start)
+	close(elapsed)
+	defer fmt.Println("SelectionSort : selection sorting done (", time.Since(start), ")")
 }
