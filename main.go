@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/arfan21/tubes/controller"
@@ -10,6 +11,10 @@ import (
 
 func main() {
 	release := os.Getenv("RELEASE")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8000"
+	}
 	e := echo.New()
 
 	e.Static("/", "views")
@@ -27,5 +32,5 @@ func main() {
 		return c.JSON(200, echo.Map{"link": linkWs})
 	})
 
-	e.Logger.Fatal(e.Start(":8000"))
+	e.Logger.Fatal(e.Start(fmt.Sprintf(":%s", port)))
 }
