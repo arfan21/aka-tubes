@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/arfan21/tubes/controller"
+
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/labstack/echo/v4"
 )
@@ -15,6 +16,7 @@ func main() {
 	if port == "" {
 		port = "8000"
 	}
+
 	e := echo.New()
 
 	e.Static("/", "views")
@@ -26,7 +28,7 @@ func main() {
 		if release == "true" {
 			linkWs = "wss://tubes-aka.arfantest-server.site/stream"
 		} else {
-			linkWs = "ws://localhost:8000/stream"
+			linkWs = fmt.Sprintf("ws://localhost:%s/stream", port)
 		}
 
 		return c.JSON(200, echo.Map{"link": linkWs})
