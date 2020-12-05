@@ -178,7 +178,7 @@ function sortArray() {
             selectionChart.data.datasets[0].data = myArray.selection_array;
             selectionChart.update();
             timeRenderSelection.push(performance.now() - start);
-            $("#selection-time-render").removeClass("hidden");
+            $("#selection-time-render").removeClass("invisible");
             $(`#selection-time-render`).attr(
                 "value",
                 `selection time render : ${renderTime(timeRenderSelection)}`
@@ -193,7 +193,7 @@ function sortArray() {
             gnomeChart.update();
 
             timeRenderGnome.push(performance.now() - start);
-            $(`#gnome-time-render`).removeClass("hidden");
+            $(`#gnome-time-render`).removeClass("invisible");
             $(`#gnome-time-render`).attr(
                 "value",
                 `gnome time render : ${renderTime(timeRenderGnome)}`
@@ -201,7 +201,7 @@ function sortArray() {
         }
         if (data.tipe === "time-selection-sort") {
             $(`#selection-time`).attr("value", `selection ${data.data}`);
-            $(`#selection-time`).removeClass("hidden");
+            $(`#selection-time`).removeClass("invisible");
             console.log("selection time :" + data.data);
             console.log(
                 "time render selection : " + renderTime(timeRenderSelection)
@@ -215,7 +215,7 @@ function sortArray() {
         }
         if (data.tipe === "time-gnome-sort") {
             $(`#gnome-time`).attr("value", `gnome ${data.data}`);
-            $(`#gnome-time`).removeClass("hidden");
+            $(`#gnome-time`).removeClass("invisible");
 
             console.log("gnome time :" + data.data);
             console.log("time render gnome : " + renderTime(timeRenderGnome));
@@ -226,8 +226,8 @@ function sortArray() {
 }
 
 function disabledButtonWhenSorting() {
-    $("#note").addClass("hidden");
-    $(".time").addClass("hidden");
+    $("#note").addClass("invisible");
+    $(".time").addClass("invisible");
     $("#start-sorting").prop("disabled", true);
     $("#start-sorting").removeClass("bg-blue-600");
     $("#start-sorting").addClass("bg-blue-500");
@@ -247,7 +247,7 @@ function enableButtonAfterSorting() {
     $("#start-sorting").prop("disabled", false);
     $("#start-sorting").removeClass("bg-blue-500");
     $("#start-sorting").addClass("bg-blue-600");
-    $("#note").removeClass("hidden");
+    $("#note").removeClass("invisible");
 }
 
 function renderTime(time) {
