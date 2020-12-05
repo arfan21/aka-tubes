@@ -30,7 +30,7 @@ jobs:
             - name: Deploy
               run: |
                   gcloud run deploy tubes \
-                  --region asia-southeast1-a \
+                  --region asia-southeast1 \
                   --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/tubes \
                   --set-env-vars=[${{ secrets.RELEASE }}]\
                   --platform managed \
