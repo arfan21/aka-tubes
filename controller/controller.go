@@ -57,7 +57,7 @@ func Controller(e echo.Context) error {
 			}
 		}
 
-		if strings.Contains(msgString, "shorting now") {
+		if strings.Contains(msgString, "sorting now") {
 			arrCopy := make([]int, len(myArray))
 			copy(arrCopy, myArray) //membuat copy dari array myArray
 
@@ -71,7 +71,7 @@ func Controller(e echo.Context) error {
 
 			var wg sync.WaitGroup
 
-			wg.Add(3)
+			wg.Add(2)
 
 			go helpers.SelectionSort(arrCopy, chanArrSelection, elapsedSelection, &wg)
 
@@ -81,13 +81,10 @@ func Controller(e echo.Context) error {
 					// mengirim data channel yang diterima dari fungsi selectionSort ke client
 					_ = websocket.WriteJSON(ws, helpers.SendResponse{Tipe: "selection-sort", Data: arrSelection}) //mengirim perubahan array ke client
 				}
-
-			}()
-
-			go func() {
-				defer wg.Done()
 				_ = websocket.WriteJSON(ws, helpers.SendResponse{Tipe: "time-selection-sort", Data: fmt.Sprintf("time execute : %v", <-elapsedSelection)})
+
 			}()
+
 			wg.Wait()
 		}
 
@@ -103,7 +100,7 @@ func Controller(e echo.Context) error {
 
 			var wg sync.WaitGroup
 
-			wg.Add(3)
+			wg.Add(2)
 
 			go helpers.GnomeSort(arrCopy, chanArrGnome, elapsedGnome, &wg)
 			go func() {
@@ -112,11 +109,6 @@ func Controller(e echo.Context) error {
 					// mengirim data channel yang diterima dari fungsi gnomeSort ke client
 					_ = websocket.WriteJSON(ws, helpers.SendResponse{Tipe: "gnome-sort", Data: arrGnome}) //mengirim perubahan array ke client
 				}
-
-			}()
-
-			go func() {
-				defer wg.Done()
 				_ = websocket.WriteJSON(ws, helpers.SendResponse{Tipe: "time-gnome-sort", Data: fmt.Sprintf("time execute : %v", <-elapsedGnome)})
 			}()
 

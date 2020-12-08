@@ -3,50 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="gopher.ico">
-    <link rel="stylesheet" href="./style.css">
+    <link rel="icon" href="./assets/gopher.ico">
     <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" integrity="sha512-d9xgZrVZpmmQlfonhQUvTR7lMPtO7NkZMkA0ABN3PHCbKA5nqylQ/yWlFAyY6hYgdF1Qh6nYiuADWwKB4C2WSw==" crossorigin="anonymous"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <title>Visualize Sorting Algorithm</title>
 </head>
-<body>
-    <div class="container mx-auto pt-4 pb-4">
+<body class="bg-gray-200">
+    <div class="container mx-auto">
         <div class="flex justify-center items-center mx-auto m-4">
-            <div class="text-5xl">Visualisasi Selection Sort dan Gnome Sort</div>
+            <div class="text-5xl text-center">Visualisasi Selection Sort dan Gnome Sort</div>
         </div>
     </div>
     
-    <div class="container mx-auto w-full md:w-3/5">
+    <div class="container mx-auto w-full md:w-1/2">
         <div class="relative flex flex-wrap justify-center items-center m-4">
-            <div class="w-full lg:w-1/2 p-2" >
-                <input class="w-full bg-white focus:outline-none border px-6 py-3 focus:border-blue-500 border-gray-600 text-gray-600" placeholder="size array (max 1000)" id="input-size" type="number">
-                <button id="generate-array" class="w-full bg-blue-600 hover:bg-blue-500 transition-all duration-200 focus:outline-none shadow-inner text-white px-6 py-3 mt-4 " onclick="generateArray()">Generate Array</button>
-                <button disabled id="start-sorting" class="w-full bg-blue-500 hover:bg-blue-500 transition-all duration-200 focus:outline-none shadow-inner text-white px-6 py-3 mt-4" onclick="sortArray()">Start Sorting</button>
+            <div class="w-full items-center px-1">
+                <input disabled  class="hidden text-center w-full text-white border-none bg-red-500 focus:outline-none border px-6 py-1.5 focus:border-teal-500 border-gray-600 mx-2 my-1" type="text" id="alert" value="[close] Connection died, please refresh"></input>
             </div>
-            <div class="w-full lg:w-1/2  p-1.5" >
-                <input disabled placeholder="selection sort execution time" class="time invisible  w-full border-none bg-blue-300 focus:outline-none border px-6 py-1.5 focus:border-teal-500 border-gray-600 text-gray-600  m-1" type="text" id="selection-time"></input>
-                <input disabled placeholder="selection sort render time" class="time invisible  w-full bg-blue-300 border-none focus:outline-none border px-6 py-1.5 focus:border-teal-500 border-gray-600 text-gray-600 m-1" type="text" id="selection-time-render"></input>
-                <input disabled placeholder="gnome sort execution time" class="time invisible  w-full border-none bg-red-300 focus:outline-none border px-6 py-1.5 focus:border-teal-500 border-gray-600 text-gray-600 m-1" type="text" id="gnome-time"></input>
-                <input disabled placeholder="gnome sort render time" class="time invisible  w-full bg-red-300 border-none focus:outline-none border px-6 py-1.5 focus:border-teal-500 border-gray-600 text-gray-600 m-1" type="text" id="gnome-time-render"></input>
+            <div class="w-full lg:w-1/2 px-1" >
+                <input class="w-full bg-white focus:outline-none border px-6 py-1.5 focus:border-indigo-500 border-gray-600 text-gray-600 mx-2 my-1" placeholder="size array (max 1000)" id="input-size" type="number">
+            </div>
+            <div class="w-full lg:w-1/2  px-1">
+                <button id="generate-array" class="w-full bg-indigo-600 hover:bg-indigo-500 transition-all duration-200 focus:outline-none shadow-inner text-white px-6 py-1.5 mx-2 my-1" onclick="generateArray()">Generate Array</button>
+            </div>
+            <div class="w-full px-1">
+                <button disabled id="start-sorting" class="w-full bg-indigo-500 hover:bg-indigo-500 transition-all duration-200 focus:outline-none shadow-inner text-white px-6 py-1.5 mx-2 my-1" onclick="sortArray()">Start Sorting</button>
+            </div>
+           
+            <div class="w-full items-center px-1">
+                <input disabled  class="invisible animate-pulse text-center w-full border-none bg-indigo-500 focus:outline-none border px-6 py-1.5 focus:border-teal-500 border-gray-600 text-white  mx-2 my-1" type="text" id="note"></input>
             </div>
         </div>
-        <div class="relative flex flex-wrap justify-center items-center m-4">
-            <p id="note" class="invisible">#note : time execute lebih cepat karena algoritma sorting dengan render dipisahkan</p>
-        </div>
+        
     </div>
 	
-	<div class="container mx-auto">
-        <div class="flex flex-wrap flex-row justify-center items-center">
-            <div class="w-full lg:w-1/2">
-                <canvas id="selectionChart"  height="200" ></canvas>
+	<div id="container-chart" class="container mx-auto h-auto hidden">
+        <div class="flex flex-wrap flex-row justify-center items-center h-auto m-1">
+            <div class="relative flex flex-wrap justify-center items-center w-full xl:w-1/2 h-auto">
+                <div class="w-full h-auto">
+                    <canvas id="selectionChart"  class="h-full"></canvas>
+                </div>
+                <div class="w-1/2 px-1" >
+                    <input disabled class="time invisible  w-full border-none bg-indigo-500 focus:outline-none border px-6 py-1.5 focus:border-teal-500 border-gray-600 text-white  m-1" type="text" id="selection-time" value="tes"></input>
+                </div>
+                <div class="w-1/2 px-1" >
+                    <input disabled class="time invisible  w-full bg-indigo-500 border-none focus:outline-none border px-6 py-1.5 focus:border-teal-500 border-gray-600 text-white m-1" type="text" id="selection-time-render"></input>
+                </div> 
             </div>
-            <div class="w-full lg:w-1/2">
-                <canvas id="gnomeChart"  height="200" ></canvas>
-            </div>
-            
+            <div class="relative flex flex-wrap justify-center items-center w-full xl:w-1/2 h-auto">
+                <div class="w-full h-auto">
+                    <canvas id="gnomeChart"  class="h-full" ></canvas>
+                </div>
+                <div class="w-1/2 px-1" >
+                    <input disabled class="time invisible  w-full border-none bg-pink-500 focus:outline-none border px-6 py-1.5 focus:border-teal-500 border-gray-600 text-white m-1" type="text" id="gnome-time" value="tes"></input>
+                </div>
+                <div class="w-1/2 px-1" >
+                    <input disabled class="time invisible  w-full bg-pink-500 border-none focus:outline-none border px-6 py-1.5 focus:border-teal-500 border-gray-600 text-white m-1" type="text" id="gnome-time-render"></input>
+                </div>  
+            </div> 
         </div>
-	</div>
+    </div>
+    
+    <!-- <div class="container mx-auto">
+        <div class="relative flex flex-wrap justify-center items-center m-4">
+            <div class="relative flex flex-wrap justify-center items-center w-1/2">
+                <div class="w-full lg:w-1/2 px-1" >
+                    <input disabled class="time   w-full border-none bg-indigo-600 focus:outline-none border px-6 py-1.5 focus:border-teal-500 border-gray-600 text-white  m-1" type="text" id="selection-time" value="tes"></input>
+                </div>
+                <div class="w-full lg:w-1/2 px-1" >
+                    <input disabled class="time   w-full bg-indigo-600 border-none focus:outline-none border px-6 py-1.5 focus:border-teal-500 border-gray-600 text-white m-1" type="text" id="selection-time-render"></input>
+                </div>     
+            </div>
+            <div class="relative flex flex-wrap justify-center items-center w-1/2">
+                <div class="w-full lg:w-1/2 px-1" >
+                    <input disabled class="time   w-full border-none bg-red-600 focus:outline-none border px-6 py-1.5 focus:border-teal-500 border-gray-600 text-white m-1" type="text" id="gnome-time" value="tes"></input>
+                </div>
+                <div class="w-full lg:w-1/2 px-1" >
+                    <input disabled class="time   w-full bg-red-600 border-none focus:outline-none border px-6 py-1.5 focus:border-teal-500 border-gray-600 text-white m-1" type="text" id="gnome-time-render"></input>
+                </div>  
+            </div>
+        </div>        
+    </div> -->
 </body>
-<script src="./main.js"></script>
+<script src="./javascript/selectionChart.js"></script>
+<script src="./javascript/gnomeChart.js"></script>
+<script src="./javascript/main.js"></script>
 </html>

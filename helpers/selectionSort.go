@@ -18,9 +18,9 @@ func SelectionSort(arr []int, chanArr chan []int, elapsed chan time.Duration, wg
 			if arr[j] < arr[minIdx] {
 				minIdx = j
 			}
+
 		}
 		arr[i], arr[minIdx] = arr[minIdx], arr[i]
-
 		chanArr <- arr //mengirim array yang sudah berubah ke channel
 	}
 	close(chanArr) // menutup channel ketika sorting sudah selesai

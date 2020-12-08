@@ -3,67 +3,15 @@ const myArray = {
     gnome_array: [],
 };
 
-const selectionChart = new Chart($("#selectionChart"), {
-    type: "horizontalBar",
-    data: {
-        labels: [],
-        datasets: [
-            {
-                label: "Selection chart",
-                data: [],
-                backgroundColor: "rgba(0, 181, 204, 1)",
-                borderWidth: 1,
-            },
-        ],
-    },
-    options: {
-        scales: {
-            yAxes: [
-                {
-                    display: false,
-                },
-            ],
-        },
-        animation: {
-            duration: 0,
-        },
-        hover: {
-            animationDuration: 0, // duration of animations when hovering an item
-        },
-        responsiveAnimationDuration: 0, // animation duration after a resize
-    },
-});
+const app = {
+    ws: undefined,
+    link: undefined,
+};
 
-const gnomeChart = new Chart($("#gnomeChart"), {
-    type: "horizontalBar",
-    data: {
-        labels: [],
-        datasets: [
-            {
-                label: "Gnome chart",
-                data: [],
-                backgroundColor: "rgb(240,61,74)",
-                borderWidth: 1,
-            },
-        ],
-    },
-    options: {
-        scales: {
-            yAxes: [
-                {
-                    display: false,
-                },
-            ],
-        },
-        animation: {
-            duration: 0,
-        },
-        hover: {
-            animationDuration: 0, // duration of animations when hovering an item
-        },
-        responsiveAnimationDuration: 0, // animation duration after a resize
-    },
-});
+const message = {
+    tipe: undefined,
+    data: undefined,
+};
 
 function getUrl() {
     return new Promise((resolve, reject) => {
@@ -72,11 +20,6 @@ function getUrl() {
         });
     });
 }
-
-var app = {
-    ws: undefined,
-    link: undefined,
-};
 
 app.init = async () => {
     if (!window.WebSocket) {
@@ -96,7 +39,8 @@ app.init = async () => {
         } else {
             // e.g. server process killed or network down
             // event.code is usually 1006 in this case
-            alert("[close] Connection died, please refresh");
+            $("#alert").removeClass("hidden");
+
             console.log("[close] Connection died");
         }
     };
@@ -105,28 +49,25 @@ app.init = async () => {
 window.onload = app.init();
 
 function generateArray() {
-    var msg = {
-        tipe: "generate array",
-        data: $("#input-size").val(),
-    };
+    (message.tipe = "generate array"), (message.data = $("#input-size").val());
 
-    if (msg.data < 1) {
+    if (message.data < 1) {
         alert("input harus lebih dari 0");
         return;
     }
 
-    if (msg.data > 1000) {
+    if (message.data > 1000) {
         alert("max 1000, biar cepat selesai wakawkawk");
         return;
     }
 
-    app.ws.send(JSON.stringify(msg));
-    console.log(`send : ${JSON.stringify(msg)}`);
+    app.ws.send(JSON.stringify(message));
+    console.log(`send : ${JSON.stringify(message)}`);
     $("#input-size").val("");
 
     app.ws.onmessage = function (event) {
         // console.log(`[message] Data received from server: ${event.data}`);
-        var data = JSON.parse(event.data);
+        const data = JSON.parse(event.data);
 
         if (data.tipe === "error") {
             alert(data.data);
@@ -145,13 +86,16 @@ function generateArray() {
             selectionChart.update();
             gnomeChart.update();
             $("#start-sorting").prop("disabled", false);
-            $("#start-sorting").removeClass("bg-blue-500");
-            $("#start-sorting").addClass("bg-blue-600");
+            $("#start-sorting").removeClass("bg-indigo-500");
+            $("#start-sorting").addClass("bg-indigo-600");
+            $("#container-chart").removeClass("hidden");
         }
     };
 }
 
 function sortArray() {
+    const timeRenderSelection = [];
+    const timeRenderGnome = [];
     if (
         myArray.selection_array.length === 0 &&
         myArray.gnome_array.length === 0
@@ -160,31 +104,64 @@ function sortArray() {
         return;
     }
     disabledButtonWhenSorting();
-    var msg = {
-        tipe: "shorting now",
-    };
+    message.tipe = "sorting now";
 
-    app.ws.send(JSON.stringify(msg));
-    var timeRenderSelection = [];
-    var timeRenderGnome = [];
+    app.ws.send(JSON.stringify(message));
+
     app.ws.onmessage = function (event) {
-        var data = JSON.parse(event.data);
+        const data = JSON.parse(event.data);
 
         if (data.tipe === "selection-sort") {
             console.log("receive selection");
+            $("#note").addClass("animate-pulse");
+            $("#note").removeClass("invisible");
+            $("#note").removeClass("text-gray-600");
+            $("#note").addClass("text-white");
+            $("#note").removeClass("bg-gray-300");
+            $("#note").addClass("bg-indigo-500");
+            $("#note").attr("value", "Selection Sort First .....");
+
             var start = performance.now();
             myArray.selection_array = data.data;
             selectionChart.data.labels = myArray.selection_array;
             selectionChart.data.datasets[0].data = myArray.selection_array;
             selectionChart.update();
             timeRenderSelection.push(performance.now() - start);
+
             $("#selection-time-render").removeClass("invisible");
             $(`#selection-time-render`).attr(
                 "value",
-                `selection time render : ${renderTime(timeRenderSelection)}`
+                `selection time chart render : ${renderTime(
+                    timeRenderSelection
+                )}`
             );
         }
+
+        if (data.tipe === "time-selection-sort") {
+            $(`#selection-time`).attr("value", `selection ${data.data}`);
+            $(`#selection-time`).removeClass("invisible");
+            console.log("selection time :" + data.data);
+            console.log(
+                "time render selection : " + renderTime(timeRenderSelection)
+            );
+
+            $("#note").removeClass("bg-indigo-500");
+            $("#note").removeClass("text-white");
+            $("#note").addClass("text-gray-600");
+            $("#note").addClass("bg-gray-300");
+            $("#note").attr("value", "Wait .....");
+            setTimeout(() => {
+                message.tipe = "selection done";
+                app.ws.send(JSON.stringify(message));
+            }, 1000);
+        }
         if (data.tipe === "gnome-sort") {
+            $("#note").removeClass("bg-gray-300");
+            $("#note").removeClass("text-gray-600");
+            $("#note").addClass("text-white");
+            $("#note").addClass("bg-pink-500");
+            $("#note").attr("value", "Gnome Sort .....");
+
             console.log("receive gnome");
             var start = performance.now();
             myArray.gnome_array = data.data;
@@ -196,24 +173,17 @@ function sortArray() {
             $(`#gnome-time-render`).removeClass("invisible");
             $(`#gnome-time-render`).attr(
                 "value",
-                `gnome time render : ${renderTime(timeRenderGnome)}`
+                `gnome time chart render : ${renderTime(timeRenderGnome)}`
             );
-        }
-        if (data.tipe === "time-selection-sort") {
-            $(`#selection-time`).attr("value", `selection ${data.data}`);
-            $(`#selection-time`).removeClass("invisible");
-            console.log("selection time :" + data.data);
-            console.log(
-                "time render selection : " + renderTime(timeRenderSelection)
-            );
-
-            var msg = {
-                tipe: "selection done",
-            };
-
-            app.ws.send(JSON.stringify(msg));
         }
         if (data.tipe === "time-gnome-sort") {
+            $("#note").removeClass("text-white");
+            $("#note").addClass("text-gray-600");
+            $("#note").removeClass("animate-pulse");
+            $("#note").removeClass("bg-pink-500");
+            $("#note").addClass("bg-gray-300");
+            $("#note").attr("value", "Done !");
+
             $(`#gnome-time`).attr("value", `gnome ${data.data}`);
             $(`#gnome-time`).removeClass("invisible");
 
@@ -229,24 +199,24 @@ function disabledButtonWhenSorting() {
     $("#note").addClass("invisible");
     $(".time").addClass("invisible");
     $("#start-sorting").prop("disabled", true);
-    $("#start-sorting").removeClass("bg-blue-600");
-    $("#start-sorting").addClass("bg-blue-500");
-    $("#generate-array").removeClass("bg-blue-600");
-    $("#generate-array").addClass("bg-blue-500");
+    $("#start-sorting").removeClass("bg-indigo-600");
+    $("#start-sorting").addClass("bg-indigo-500");
+    $("#generate-array").removeClass("bg-indigo-600");
+    $("#generate-array").addClass("bg-indigo-500");
     $("#generate-array").prop("disabled", true);
     $("#input-size").prop("disabled", true);
     $("#input-size").attr("placeholder", "wait until sort finish");
 }
 
 function enableButtonAfterSorting() {
-    $("#generate-array").removeClass("bg-blue-500");
-    $("#generate-array").addClass("bg-blue-600");
+    $("#generate-array").removeClass("bg-indigo-500");
+    $("#generate-array").addClass("bg-indigo-600");
     $("#generate-array").prop("disabled", false);
     $("#input-size").prop("disabled", false);
     $("#input-size").attr("placeholder", "size array (max 1000)");
     $("#start-sorting").prop("disabled", false);
-    $("#start-sorting").removeClass("bg-blue-500");
-    $("#start-sorting").addClass("bg-blue-600");
+    $("#start-sorting").removeClass("bg-indigo-500");
+    $("#start-sorting").addClass("bg-indigo-600");
     $("#note").removeClass("invisible");
 }
 
