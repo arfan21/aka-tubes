@@ -21,6 +21,62 @@ function getUrl() {
     });
 }
 
+//from https://jsfiddle.net/Behseini/ue8gj52t/
+$("#input-size").on("keypress keyup blur", function (event) {
+    $(this).val(
+        $(this)
+            .val()
+            .replace(/[^\d].+/, "")
+    );
+    if (event.which < 48 || event.which > 57) {
+        event.preventDefault();
+    }
+});
+
+function validateInput(value) {
+    let size = parseInt(value);
+
+    if (size < 1 || isNaN(size)) {
+        $("#error-msg").text("input harus lebih dari 0");
+        $("#generate-array").prop("disabled", true);
+        $("#generate-array").removeClass("bg-indigo-600");
+        $("#generate-array").addClass("bg-indigo-500");
+        $("#input-size").removeClass("border-gray-600");
+        $("#input-size").removeClass("focus:border-indigo-500");
+        $("#input-size").addClass("focus:border-red-500");
+        $("#input-size").addClass("border-red-600");
+        $("#error-msg").removeClass("hidden");
+        $("#generate-array").addClass("mb-7");
+
+        return;
+    }
+    if (size > 1000) {
+        $("#error-msg").text("max 1000, biar cepat selesai");
+        $("#generate-array").prop("disabled", true);
+        $("#generate-array").removeClass("bg-indigo-600");
+        $("#generate-array").addClass("bg-indigo-500");
+        $("#input-size").removeClass("border-gray-600");
+        $("#input-size").removeClass("focus:border-indigo-500");
+        $("#input-size").addClass("focus:border-red-500");
+        $("#input-size").addClass("border-red-600");
+        $("#error-msg").removeClass("hidden");
+        $("#generate-array").addClass("mb-7");
+
+        return;
+    }
+
+    $("#error-msg").text("input harus lebih dari 0");
+    $("#generate-array").prop("disabled", false);
+    $("#generate-array").removeClass("bg-indigo-500");
+    $("#generate-array").addClass("bg-indigo-600");
+    $("#input-size").addClass("border-gray-600");
+    $("#input-size").addClass("focus:border-indigo-500");
+    $("#input-size").removeClass("focus:border-red-500");
+    $("#input-size").removeClass("border-red-600");
+    $("#error-msg").addClass("hidden");
+    $("#generate-array").removeClass("mb-7");
+}
+
 app.init = async () => {
     if (!window.WebSocket) {
         alert("Your browser does not support WebSocket");
