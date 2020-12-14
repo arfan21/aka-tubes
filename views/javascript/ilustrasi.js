@@ -32,7 +32,7 @@ async function gnomeIlustrasi() {
 
     let index = 0;
     while (index < myArray.gnome_array.length) {
-        if (gnomeChart.data.datasets[0].backgroundColor[index] != "red") {
+        if (gnomeChart.data.datasets[0].backgroundColor[index] != "blue") {
             gnomeChart.data.datasets[0].backgroundColor[index] = "yellow";
             gnomeChart.update();
             await sleep(250);
@@ -65,7 +65,7 @@ async function gnomeIlustrasi() {
             var temp = 0;
             temp = myArray.gnome_array[index];
 
-            gnomeChart.data.datasets[0].backgroundColor[index] = "red";
+            gnomeChart.data.datasets[0].backgroundColor[index] = "blue";
             var tempColor = gnomeChart.data.datasets[0].backgroundColor[index];
             gnomeChart.update();
             await sleep(80);
@@ -125,7 +125,7 @@ async function selectionIlustrasi() {
             await sleep(1);
             selectionChart.data.datasets[0].backgroundColor[min] = "red";
             selectionChart.update();
-            await sleep(250);
+            await sleep(200);
         }
         if (min != i) {
             // Swapping the elements
@@ -135,7 +135,7 @@ async function selectionIlustrasi() {
             selectionChart.data.datasets[0].backgroundColor[i] = "red";
             var tempColor = selectionChart.data.datasets[0].backgroundColor[i];
             selectionChart.update();
-            await sleep(250);
+            await sleep(200);
 
             myArray.selection_array[i] = myArray.selection_array[min];
 
@@ -147,7 +147,7 @@ async function selectionIlustrasi() {
             myArray.selection_array[min] = tmp;
             selectionChart.data.datasets[0].backgroundColor[min] = tempColor;
             selectionChart.update();
-            await sleep(250);
+            await sleep(200);
         }
 
         selectionChart.options.animation.duration = 100;
