@@ -6,7 +6,7 @@ const gnomeChart = new Chart($("#gnomeChart"), {
             {
                 label: "Gnome chart",
                 data: [],
-                backgroundColor: "rgb(236,72,153)",
+                backgroundColor: ["rgb(236,72,153)"],
                 borderWidth: 1,
             },
         ],

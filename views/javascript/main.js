@@ -13,14 +13,6 @@ const message = {
     data: undefined,
 };
 
-function getUrl() {
-    return new Promise((resolve, reject) => {
-        $.get("/link-ws", (res) => {
-            resolve(res.link);
-        });
-    });
-}
-
 //from https://jsfiddle.net/Behseini/ue8gj52t/
 $("#input-size").on("keypress keyup blur", function (event) {
     $(this).val(
@@ -37,44 +29,22 @@ function validateInput(value) {
     let size = parseInt(value);
 
     if (size < 1 || isNaN(size)) {
-        $("#error-msg").text("input harus lebih dari 0");
-        $("#generate-array").prop("disabled", true);
-        $("#generate-array").removeClass("bg-indigo-600");
-        $("#generate-array").addClass("bg-indigo-500");
-        $("#input-size").removeClass("border-gray-600");
-        $("#input-size").removeClass("focus:border-indigo-500");
-        $("#input-size").addClass("focus:border-red-500");
-        $("#input-size").addClass("border-red-600");
-        $("#error-msg").removeClass("hidden");
-        $("#generate-array").addClass("mb-7");
+        disableButton("#generate-array");
+
+        inputErrorMessage("input harus lebih dari 0");
 
         return;
     }
     if (size > 1000) {
-        $("#error-msg").text("max 1000, biar cepat selesai");
-        $("#generate-array").prop("disabled", true);
-        $("#generate-array").removeClass("bg-indigo-600");
-        $("#generate-array").addClass("bg-indigo-500");
-        $("#input-size").removeClass("border-gray-600");
-        $("#input-size").removeClass("focus:border-indigo-500");
-        $("#input-size").addClass("focus:border-red-500");
-        $("#input-size").addClass("border-red-600");
-        $("#error-msg").removeClass("hidden");
-        $("#generate-array").addClass("mb-7");
+        disableButton("#generate-array");
+
+        inputErrorMessage("max 1000, biar cepat selesai");
 
         return;
     }
+    enableButton("#generate-array");
 
-    $("#error-msg").text("input harus lebih dari 0");
-    $("#generate-array").prop("disabled", false);
-    $("#generate-array").removeClass("bg-indigo-500");
-    $("#generate-array").addClass("bg-indigo-600");
-    $("#input-size").addClass("border-gray-600");
-    $("#input-size").addClass("focus:border-indigo-500");
-    $("#input-size").removeClass("focus:border-red-500");
-    $("#input-size").removeClass("border-red-600");
-    $("#error-msg").addClass("hidden");
-    $("#generate-array").removeClass("mb-7");
+    inputRemoveErrorMessage();
 }
 
 app.init = async () => {
@@ -106,6 +76,12 @@ window.onload = app.init();
 
 function generateArray() {
     (message.tipe = "generate array"), (message.data = $("#input-size").val());
+    $(".time").addClass("invisible");
+
+    if ($("#ilustrasi-sorting").is(":disabled")) {
+        alert("tunggu sampai ilustrasi selesai");
+        return;
+    }
 
     if (message.data < 1) {
         alert("input harus lebih dari 0");
@@ -133,17 +109,31 @@ function generateArray() {
             myArray.selection_array = data.data;
             myArray.gnome_array = data.data;
 
-            selectionChart.data.labels = myArray.selection_array;
-            selectionChart.data.datasets[0].data = myArray.selection_array;
-            gnomeChart.data.labels = myArray.gnome_array;
-            gnomeChart.data.datasets[0].data = myArray.gnome_array;
+            selectionChart.data.datasets[0].backgroundColor = [
+                ...new Array(myArray.gnome_array.length - 1).fill(
+                    "rgb(99,102,241)"
+                ),
+                "rgb(99,102,241)",
+            ];
+            selectionChart.options.animation.duration = 0;
 
-            //update chart
+            gnomeChart.data.datasets[0].backgroundColor = [
+                ...new Array(myArray.gnome_array.length - 1).fill(
+                    "rgb(236,72,153)"
+                ),
+                "rgb(236,72,153)",
+            ];
+            gnomeChart.options.animation.duration = 0;
+
             selectionChart.update();
             gnomeChart.update();
-            $("#start-sorting").prop("disabled", false);
-            $("#start-sorting").removeClass("bg-indigo-500");
-            $("#start-sorting").addClass("bg-indigo-600");
+
+            updateChart(selectionChart, myArray.selection_array);
+            updateChart(gnomeChart, myArray.gnome_array);
+
+            enableButton("#start-sorting");
+            disableButton("#ilustrasi-sorting");
+
             $("#container-chart").removeClass("hidden");
         }
     };
@@ -152,6 +142,12 @@ function generateArray() {
 function sortArray() {
     const timeRenderSelection = [];
     const timeRenderGnome = [];
+    disableButton("#start-sorting");
+    disableButton("#generate-array");
+    disableButton("#ilustrasi-sorting");
+    disableInput("tunggu sampai sorting selesai");
+    $(".time").addClass("invisible");
+
     if (
         myArray.selection_array.length === 0 &&
         myArray.gnome_array.length === 0
@@ -159,7 +155,7 @@ function sortArray() {
         alert("chart masih kosong");
         return;
     }
-    disabledButtonWhenSorting();
+
     message.tipe = "sorting now";
 
     app.ws.send(JSON.stringify(message));
@@ -179,9 +175,8 @@ function sortArray() {
 
             var start = performance.now();
             myArray.selection_array = data.data;
-            selectionChart.data.labels = myArray.selection_array;
-            selectionChart.data.datasets[0].data = myArray.selection_array;
-            selectionChart.update();
+
+            updateChart(selectionChart, myArray.selection_array);
             timeRenderSelection.push(performance.now() - start);
 
             $("#selection-time-render").removeClass("invisible");
@@ -221,9 +216,8 @@ function sortArray() {
             console.log("receive gnome");
             var start = performance.now();
             myArray.gnome_array = data.data;
-            gnomeChart.data.labels = myArray.gnome_array;
-            gnomeChart.data.datasets[0].data = myArray.gnome_array;
-            gnomeChart.update();
+
+            updateChart(gnomeChart, myArray.gnome_array);
 
             timeRenderGnome.push(performance.now() - start);
             $(`#gnome-time-render`).removeClass("invisible");
@@ -246,42 +240,10 @@ function sortArray() {
             console.log("gnome time :" + data.data);
             console.log("time render gnome : " + renderTime(timeRenderGnome));
 
-            enableButtonAfterSorting();
+            enableButton("#generate-array");
+            enableButton("#start-sorting");
+            enableButton("#ilustrasi-sorting");
+            enableInput();
         }
     };
-}
-
-function disabledButtonWhenSorting() {
-    $("#note").addClass("invisible");
-    $(".time").addClass("invisible");
-    $("#start-sorting").prop("disabled", true);
-    $("#start-sorting").removeClass("bg-indigo-600");
-    $("#start-sorting").addClass("bg-indigo-500");
-    $("#generate-array").removeClass("bg-indigo-600");
-    $("#generate-array").addClass("bg-indigo-500");
-    $("#generate-array").prop("disabled", true);
-    $("#input-size").prop("disabled", true);
-    $("#input-size").attr("placeholder", "wait until sort finish");
-}
-
-function enableButtonAfterSorting() {
-    $("#generate-array").removeClass("bg-indigo-500");
-    $("#generate-array").addClass("bg-indigo-600");
-    $("#generate-array").prop("disabled", false);
-    $("#input-size").prop("disabled", false);
-    $("#input-size").attr("placeholder", "size array (max 1000)");
-    $("#start-sorting").prop("disabled", false);
-    $("#start-sorting").removeClass("bg-indigo-500");
-    $("#start-sorting").addClass("bg-indigo-600");
-    $("#note").removeClass("invisible");
-}
-
-function renderTime(time) {
-    var timeFixed = time.reduce((a, b) => a + b).toFixed(4);
-
-    if (timeFixed >= 1000) {
-        return `${((timeFixed % 60000) / 1000).toFixed(4)} s`;
-    } else {
-        return `${timeFixed} ms`;
-    }
 }

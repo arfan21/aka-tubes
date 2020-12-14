@@ -22,14 +22,17 @@
                 <input disabled  class="hidden text-center w-full text-white border-none bg-red-500 focus:outline-none border px-6 py-1.5 focus:border-teal-500 border-gray-600 mx-2 my-1" type="text" id="alert" value="[close] Connection died, please refresh"></input>
             </div>
             <div class="w-full lg:w-1/2 px-1" >
-                <input max="5" oninput="validateInput(this.value)" class="w-full bg-white focus:outline-none border px-6 py-1.5 focus:border-indigo-500 border-gray-600 text-gray-600 mx-2 my-1" placeholder="size array (max 1000)" id="input-size" type="number">
+                <input oninput="validateInput(this.value)" class="w-full bg-white focus:outline-none border px-6 py-1.5 focus:border-indigo-500 border-gray-600 text-gray-600 mx-2 my-1" placeholder="size array (max 1000)" id="input-size" type="number">
                 <label id="error-msg" class="text-sm mx-2 hidden text-red-600">input harus lebih dari 0</label>
             </div>
             <div class="w-full lg:w-1/2  px-1">
-                <button id="generate-array" class="w-full bg-indigo-600 hover:bg-indigo-500 focus:outline-none shadow-inner text-white px-6 py-1.5 mx-2 my-1" onclick="generateArray()">Generate Array</button>
+                <button disabled id="generate-array" class="w-full bg-indigo-500 hover:bg-indigo-500 focus:outline-none shadow-inner text-white px-6 py-1.5 mx-2 my-1" onclick="generateArray()">Generate Array</button>
             </div>
             <div class="w-full px-1">
                 <button disabled id="start-sorting" class="w-full bg-indigo-500 hover:bg-indigo-500 transition-all duration-200 focus:outline-none shadow-inner text-white px-6 py-1.5 mx-2 my-1" onclick="sortArray()">Start Sorting</button>
+            </div>
+            <div class="w-full px-1">
+                <button id="ilustrasi-sorting" class="w-full bg-indigo-600 hover:bg-indigo-500 transition-all duration-200 focus:outline-none shadow-inner text-white px-6 py-1.5 mx-2 my-1" onclick="startIlustrasi()">Start Ilustrasi</button>
             </div>
            
             <div class="w-full items-center px-1">
@@ -66,7 +69,9 @@
         </div>
     </div>
 </body>
+<script src="./javascript/helpers.js"></script>
 <script src="./javascript/selectionChart.js"></script>
 <script src="./javascript/gnomeChart.js"></script>
 <script src="./javascript/main.js"></script>
+<script src="./javascript/ilustrasi.js"></script>
 </html>

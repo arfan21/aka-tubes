@@ -6,7 +6,7 @@ const selectionChart = new Chart($("#selectionChart"), {
             {
                 label: "Selection chart",
                 data: [],
-                backgroundColor: "rgb(99,102,241)",
+                backgroundColor: ["rgb(99,102,241)"],
                 borderWidth: 1,
             },
         ],
