@@ -93,6 +93,7 @@ function generateArray() {
         return;
     }
 
+    //mengirim perintah ke backend untuk menggenerate random array
     app.ws.send(JSON.stringify(message));
     console.log(`send : ${JSON.stringify(message)}`);
     $("#input-size").val("");
@@ -128,6 +129,8 @@ function generateArray() {
             selectionChart.update();
             gnomeChart.update();
 
+            //mengupdate chart setelah backend mengirim random array
+
             updateChart(selectionChart, myArray.selection_array);
             updateChart(gnomeChart, myArray.gnome_array);
 
@@ -157,9 +160,10 @@ function sortArray() {
     }
 
     message.tipe = "sorting now";
-
+    //mengirim perintah ke backend untuk memulai sorting
     app.ws.send(JSON.stringify(message));
 
+    //menerima perubahan array dari backend lalu mengupdate bar chartnya
     app.ws.onmessage = function (event) {
         const data = JSON.parse(event.data);
 
@@ -174,11 +178,13 @@ function sortArray() {
             $("#note").attr("value", "Selection Sort First .....");
 
             var start = performance.now();
+
+            //mengupdate bar chart selection sort
             myArray.selection_array = data.data;
-
             updateChart(selectionChart, myArray.selection_array);
-            timeRenderSelection.push(performance.now() - start);
 
+            //menampilkan waktu render
+            timeRenderSelection.push(performance.now() - start);
             $("#selection-time-render").removeClass("invisible");
             $(`#selection-time-render`).attr(
                 "value",
@@ -189,6 +195,7 @@ function sortArray() {
         }
 
         if (data.tipe === "time-selection-sort") {
+            //menampilkan waktu sorting yang dikirim dari backend
             $(`#selection-time`).attr("value", `selection ${data.data}`);
             $(`#selection-time`).removeClass("invisible");
             console.log("selection time :" + data.data);
@@ -202,6 +209,7 @@ function sortArray() {
             $("#note").addClass("bg-gray-300");
             $("#note").attr("value", "Wait .....");
             setTimeout(() => {
+                //memberitahu backend bahwa selection sort selesai di render
                 message.tipe = "selection done";
                 app.ws.send(JSON.stringify(message));
             }, 1000);
@@ -212,13 +220,15 @@ function sortArray() {
             $("#note").addClass("text-white");
             $("#note").addClass("bg-pink-500");
             $("#note").attr("value", "Gnome Sort .....");
-
             console.log("receive gnome");
-            var start = performance.now();
-            myArray.gnome_array = data.data;
 
+            var start = performance.now();
+
+            //mengupdate bar chart gnome sort
+            myArray.gnome_array = data.data;
             updateChart(gnomeChart, myArray.gnome_array);
 
+            //menampilkan waktu render
             timeRenderGnome.push(performance.now() - start);
             $(`#gnome-time-render`).removeClass("invisible");
             $(`#gnome-time-render`).attr(
@@ -227,15 +237,16 @@ function sortArray() {
             );
         }
         if (data.tipe === "time-gnome-sort") {
+            //menampilkan waktu sorting yang dikirim dari backend
+            $(`#gnome-time`).attr("value", `gnome ${data.data}`);
+            $(`#gnome-time`).removeClass("invisible");
+
             $("#note").removeClass("text-white");
             $("#note").addClass("text-gray-600");
             $("#note").removeClass("animate-pulse");
             $("#note").removeClass("bg-pink-500");
             $("#note").addClass("bg-gray-300");
             $("#note").attr("value", "Done !");
-
-            $(`#gnome-time`).attr("value", `gnome ${data.data}`);
-            $(`#gnome-time`).removeClass("invisible");
 
             console.log("gnome time :" + data.data);
             console.log("time render gnome : " + renderTime(timeRenderGnome));

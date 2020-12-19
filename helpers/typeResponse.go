@@ -1,6 +1,6 @@
 package helpers
 
-type SendResponse struct {
+type Response struct {
 	Tipe string      `json:"tipe"`
 	Data interface{} `json:"data"`
 }

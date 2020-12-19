@@ -27,39 +27,40 @@ func Controller(e echo.Context) error {
 	myArray := make([]int, 0)
 
 	for {
-		var message map[string]interface{}
-		err := ws.ReadJSON(&message)
+		message := new(helpers.Response)
+
+		//menerima pesan dari client
+		err := ws.ReadJSON(message)
 		if err != nil {
 			e.Logger().Error(err)
-			websocket.WriteJSON(ws, helpers.SendResponse{Tipe: "error", Data: err.Error()})
+			websocket.WriteJSON(ws, helpers.Response{Tipe: "error", Data: err.Error()})
 			return err
 		}
 
-		msgString := message["tipe"].(string)
-		fmt.Println(msgString)
+		fmt.Println(message.Tipe)
 
-		if strings.Contains(msgString, "generate array") {
+		if strings.Contains(message.Tipe, "generate array") {
 			myArray = make([]int, 0) // reset array
 
-			sizeStr := message["data"].(string)
+			sizeStr := message.Data.(string)
 			size, err := strconv.Atoi(sizeStr) //convert size array dari string ke integer
 
 			if err != nil {
-				err = websocket.WriteJSON(ws, helpers.SendResponse{Tipe: "error", Data: "inputan hanya angka"})
+				err = websocket.WriteJSON(ws, helpers.Response{Tipe: "error", Data: "inputan hanya angka"})
 				if err != nil {
 					log.Println(err)
 				}
 			} else {
 				myArray = rand.Perm(size)
 
-				err = websocket.WriteJSON(ws, helpers.SendResponse{Tipe: "unsorted", Data: myArray})
+				err = websocket.WriteJSON(ws, helpers.Response{Tipe: "unsorted", Data: myArray})
 				if err != nil {
 					log.Println(err)
 				}
 			}
 		}
 
-		if strings.Contains(msgString, "sorting now") {
+		if strings.Contains(message.Tipe, "sorting now") {
 			arrCopy := make([]int, len(myArray))
 			copy(arrCopy, myArray) //membuat copy dari array myArray
 
@@ -81,16 +82,16 @@ func Controller(e echo.Context) error {
 				defer wg.Done()
 				for arrSelection := range chanArrSelection {
 					// mengirim data channel yang diterima dari fungsi selectionSort ke client
-					_ = websocket.WriteJSON(ws, helpers.SendResponse{Tipe: "selection-sort", Data: arrSelection}) //mengirim perubahan array ke client
+					_ = websocket.WriteJSON(ws, helpers.Response{Tipe: "selection-sort", Data: arrSelection}) //mengirim perubahan array ke client
 				}
-				_ = websocket.WriteJSON(ws, helpers.SendResponse{Tipe: "time-selection-sort", Data: fmt.Sprintf("time execute : %v", <-elapsedSelection)})
+				_ = websocket.WriteJSON(ws, helpers.Response{Tipe: "time-selection-sort", Data: fmt.Sprintf("time execute : %v", <-elapsedSelection)})
 
 			}()
 
 			wg.Wait()
 		}
 
-		if strings.Contains(msgString, "selection done") {
+		if strings.Contains(message.Tipe, "selection done") {
 			arrCopy := make([]int, len(myArray))
 			copy(arrCopy, myArray)
 
@@ -109,9 +110,9 @@ func Controller(e echo.Context) error {
 				defer wg.Done()
 				for arrGnome := range chanArrGnome {
 					// mengirim data channel yang diterima dari fungsi gnomeSort ke client
-					_ = websocket.WriteJSON(ws, helpers.SendResponse{Tipe: "gnome-sort", Data: arrGnome}) //mengirim perubahan array ke client
+					_ = websocket.WriteJSON(ws, helpers.Response{Tipe: "gnome-sort", Data: arrGnome}) //mengirim perubahan array ke client
 				}
-				_ = websocket.WriteJSON(ws, helpers.SendResponse{Tipe: "time-gnome-sort", Data: fmt.Sprintf("time execute : %v", <-elapsedGnome)})
+				_ = websocket.WriteJSON(ws, helpers.Response{Tipe: "time-gnome-sort", Data: fmt.Sprintf("time execute : %v", <-elapsedGnome)})
 			}()
 
 			wg.Wait()
@@ -121,6 +122,7 @@ func Controller(e echo.Context) error {
 	}
 }
 
+//keepAlive untuk koneksi websocket tetap hidup
 func keepAlive(c *websocket.Conn, timeout time.Duration) {
 	lastResponse := time.Now()
 	c.SetPongHandler(func(msg string) error {
