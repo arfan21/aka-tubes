@@ -3,4 +3,6 @@
 
 
 ### [Demo App](https://tubes-aka.arfantest-server.site/)
-![](https://i.imgur.com/pyUXuYG.gif)
+![](https://imgur.com/wAhwgXy.gif)
+
+![](https://imgur.com/eV9uRDS.gif)
