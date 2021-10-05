@@ -1,0 +1,15 @@
+name: publish
+
+on: [push]
+
+jobs:
+    build:
+        name: Cloud Run Deployment
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@master
+
+            - name: Start Action
+              run: |
+                echo "TES ACTION"
