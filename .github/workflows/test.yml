@@ -1,15 +1,18 @@
-name: test
-
-on: [push, workflow_dispatch]
+name: Test manual action run
+on:
+  workflow_dispatch:
+    inputs:
+      puppy:
+        description: 'A kind of puppy.'
+        required: true
 
 jobs:
-    build:
-        name: Test Actions
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout
-              uses: actions/checkout@master
-
-            - name: Start Action
-              run: |
-                echo "TES ACTION"
+  activation:
+    name: Print the input
+    runs-on: ubuntu-latest
+    steps:
+      # Request manual activation file
+      - name: Print puppy type
+        id: printPuppyType
+        run: echo The puppy is ${{ github.event.inputs.puppy }}
+        
