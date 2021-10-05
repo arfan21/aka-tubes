@@ -4,7 +4,7 @@ on: [push]
 
 jobs:
     build:
-        name: Cloud Run Deployment
+        name: Test Actions
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
